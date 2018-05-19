@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+table td { overflow: hidden; text-align: center;}
+table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+table-layout: fixed;
+}
+td,th {
+word-wrap: break-word;
+border: 1px solid #ddd;
+    padding: 8px;
+}
+.versions {
+color:#4dc2ca;
+    padding-left: 20%;
+    font-weight: bold;
+    font-size: 20px;" 
+
+}
+.green {
+ padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: rgb(77, 194, 202);
+    color: white;
+
+}
+
+.table-wrapper
+{
+    width: 88%;
+    height: 500px;
+    overflow: auto;
+}
+#outer {
+padding: 0px 100px 100px 100px;
+}
+
+
+</style>
+
+</head>
+<body>
+<div style="float:left;width:50%;margin:0 auto;overflow-x:auto;" id="v1">
+</div>
+<div style="float:right;width:50%;margin:0 auto;overflow-x:auto;" id="v2">
+</div>
+<br><br>
+<div id="outer"><div  style="
+    color:#4dc2ca;
+    font-weight: bold;
+    font-size: 20px;float:left;padding-top:5%" id="header"></div><div id="legend" style="    padding-top: 5%;
+    padding-bottom: 1%;float:right;"></div></div><div id="inner" style="margin:0 auto;" class="table-wrapper"></div>
+<script>
+$(function () {
+$.getJSON('matrix.json', function(data) {
+generateTable(data);
+});});
+
+		function generateTable(allData)
+		{
+			var divCount = 0;
+			for(var version in allData) {
+			var table = "<div class='versions'>"+version.split('#')[1]+"</div><table style='margin: 0 auto;' border=2><tr><th></th>";
+                        var keys = [];
+                        var content = {}
+                        console.log(allData);
+			divCount = divCount+1;
+			var data = allData[version];
+			for(var k in data) {
+				table+= '<th class="green">' + k + '</th>';
+				keys.push(k)
+				var arr = []
+				for(var item in data[k]) {
+					arr.push(item)	
+				}
+				content[k] = arr;
+			}
+			table += '</tr>';
+			for(var k in data) {
+			table += '<tr><td class="green">'+k+'</td>';
+			var count = 0;
+			var names = "";
+			for(var j=0;j<keys.length;j++) 
+			{
+  				var count = 0;
+				var innerCluster = keys[j];
+				if(content[k].indexOf(keys[j]) > -1){
+					for(var files in data[k][keys[j]]) {
+                                		count += data[k][keys[j]][files].length;
+                        		}
+				}
+				table += '<td style="cursor:pointer" onclick="expand(\''+count+'\',\''+version+'\',\''+k+'\',\''+keys[j]+'\')">'+count+'</td>';
+			}
+                        table += '</tr>';			
+			/*for(var inner in data[k]) {
+				count  = 0;
+				for(var files in data[k][inner]) {
+					count += data[k][inner][files].length;		
+				}
+				table += '<td>'+count+'<td>';   	
+			}*/
+ 			}
+			table += '</table>';
+			console.log(divCount);
+			$('#v'+divCount).append(table);	
+		}}
+		function expand(count,version,from,to) {
+		if((count) > 0)
+		{
+		$.getJSON('matrix.json', function(data) {
+		var depsJSON = {}
+		data = data[version];
+		var innerTable = "<table id='inner' width='100%' border=2><tr><th></th>";
+		for(var index in data) {
+			depsJSON[index] = {}
+			for(var r in data[index]) {
+				for(var blee in data[index][r]){
+					depsJSON[index][blee] = data[index][r][blee];
+				}		
+			}
+		}
+		var val = data[from][to];
+		var arr = []
+		var items = {}
+		for(var key in val) {
+			for(var i in val[key]) {
+                                        if(arr.indexOf(val[key][i]) == -1){
+						var name = val[key][i].substr(val[key][i].lastIndexOf(".")+1,val[key][i].length-1);;
+						//innerTable+= '<th></th>';
+						innerTable+= '<th class="green">' + name.charAt(0) + '</th>';
+						console.log(val[key][i]);
+						arr.push(val[key][i]);
+					}  
+                        }
+		}
+		innerTable += '</tr>';
+		for(var k in val) {
+			innerTable += '<tr><td class="green">'+k.substr(k.lastIndexOf(".")+1,k.length-1).charAt(0)+'</td>';
+			for(var j=0;j<arr.length;j++) 
+                        {
+				var flag = false;
+				var count = 0;
+				var style = "";
+				var tooltip = "";
+				if(val[k].indexOf(arr[j]) > -1) {
+					style = "#bcd5dd";
+					//innerTable += '<td  style = "background-color: #b9edef;"></td>';
+					flag = true;
+					tooltip = k+' depends on '+arr[j];
+				}
+				else {	
+					style = "#ecedf1";
+					//innerTable += '<td></td>';				
+				}
+				for(var item in depsJSON) {
+				if(depsJSON[item].hasOwnProperty(arr[j])) {	
+					if(depsJSON[item][arr[j]].indexOf(k) > -1) {
+						if(flag) {
+						//TBD - cyclic dependency
+							tooltip += " and "+arr[j]+" depends on"+k;		
+							style = "#FF9797";			
+						}
+						else 
+						{
+						tooltip = arr[j]+" depends on "+k;
+						style = "#23819C";
+						console.log("Cluster: "+item+" top : "+arr[j]+"down: "+k);}
+					}
+				}}
+			innerTable += '<td title = "'+tooltip+'" style = "background-color: '+style+';"></td>';
+			}
+			innerTable+="</tr>";
+		}
+		innerTable +="</table>";
+		header = from+" - "+to;
+		var legend = '<table style="border-collapse:collapse"><tr><td>Legend:</td><td style = "background-color: #bcd5dd";></td><td>X depends Y</td><td style = "background-color: #23819C";></td><td>Y depends X</td><td style = "background-color: #FF9797";></td><td>Cyclic dependency</td></tr></table>';
+		$('#header').html(header);
+		$('#legend').html(legend);
+                $('#inner').html(innerTable);
+		});
+                }
+		else {
+		$('#header').empty();
+		$('#legend').empty();
+		$('#inner').empty();
+		}
+		}
+</script>
+</body>

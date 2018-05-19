@@ -1,0 +1,47 @@
+<html>
+<head>
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<style>
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    color: #fff;
+    background-color: rgb(51, 167, 194);
+</style>
+<script>
+$(function(){
+	     document.getElementById("news").innerHTML='<object type="text/html" data="matrix.html" style="width: 100%;height: 100%;"></object>';
+	     document.getElementById("historicalStock").innerHTML='<object type="text/html" data="highcharts.html" style="width: 100%;height: 100%;"></object>';
+         document.getElementById("currentStock").innerHTML='<object type="text/html" data="circle.html" style="width: 100%;height: 100%;"></object>';
+
+});
+function hide(id,div) 
+{
+    $('#mainTab li.active').removeClass('active');
+	$(id).parent().addClass('active');
+	$('.tab').addClass('hide');
+	$('#'+div).removeClass('hide');
+}
+</script>
+</head>
+<body>
+<h3 style="font-size:50px; color:rgb(51, 167, 194);"><center><bold>Version Change Visualisation</bold></center></h3>
+<div style="background-color:#f2f5f6">
+<ul id="mainTab" style="cursor:pointer" class="nav nav-pills nav-justified">
+	<li class="active link"><a onclick="hide(this,'currentStock');"><span class="glyphicon glyphicon-dashboard"></span> <span class="hidden-xs hidden-sm"></span> Cluster Visualization</a></li>
+	<li class="link"><a onclick="hide(this,'historicalStock');"><span class="glyphicon glyphicon-stats"></span> <span class="hidden-xs hidden-sm">Top Dependencies</span></a></li>
+	<li class="link"><a onclick="hide(this,'news');"><span class="glyphicon glyphicon-th"></span><span class="hidden-xs hidden-sm">Dependency Structure</span></a></li>
+</ul>
+<div id="historicalStock" class="tab row hide container-fluid">HH</div>
+<div id="news" class="tab row hide container-fluid" >NN</div>
+<div id="currentStock" class="tab row container-fluid" style="width:1000px; margin:0 auto;">CC</div>
+</div>
+</body>
+</html>

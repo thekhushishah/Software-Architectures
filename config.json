@@ -1,0 +1,4 @@
+{
+"cluster-files":["chukwa-0.1.2_relax_clusters.rsf","chukwa-0.2.0_relax_clusters.rsf"],
+"deps-files":["chukwa-0.1.2_deps.rsf","chukwa-0.2.0_deps.rsf"]
+}
